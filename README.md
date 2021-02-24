@@ -9,32 +9,22 @@ Clone this repository and then run:
 ```
 mvn clean package
 ```
-Or download the JAR file from [release](https://github.com/aimtiaz11/jdbc-tester/releases) page. 
 
-Execute the JAR file with the following 3 parameters with schema name, password and JDBC connection details:
-
-```sh
-java -jar target/jdbc-tester-1.0.jar <schema_name> <schema_password> jdbc:oracle:thin:@//<host>:<port>/<SID>
-```
-
-### Secure your credentials
-
-When running this tool ad-hoc, a good security practice would be read the DB username and password into a variable by using `read` command in Linux (or similar) and then execute the JAR file.
-
-This prevents DB credentials being stored in `~/.bash_history`.
-
+Execute the JAR file:
 
 ```sh
-java -jar target/jdbc-tester-1.1.jar $DB_USER $DB_PASS jdbc:oracle:thin:@//<host>:<port>/<SID>
+java -jar target/jdbc-tester-1.0.jar
+# or
+java -jar jdbc-tester-1.1-jar-with-dependencies.jar
 ```
 
 ## How it works
 
-The application connects to the Oracle database and executes a single SQL query: `select sysdate from dual` and prints the output. 
+The application connects to the Oracle database and executes the provided query or a default SQL query: `SELECT sysdate FROM dual` and prints the output. 
 
 If it cannot connect for whatever reason, it will fail by logging an error message.
 
-There is a hardcoded connection timeout set to 10 seconds.
+Original source: https://github.com/aimtiaz11/jdbc-tester
 
 ## License
 
