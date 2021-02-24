@@ -1,8 +1,8 @@
-import oracle.jdbc.OracleConnection;
+// import oracle.jdbc.OracleConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
+import java.io.Console;
 import java.sql.*;
 import java.util.Properties;
 
@@ -13,34 +13,51 @@ public class Main {
 
     public static void main(String[] args) throws ClassNotFoundException {
 
-        for (int i = 0; i < args.length; i++) {
-            LOG.info("arg {} = {}", i, args[i]);
-        }
+        final Console console = System.console();
+        final String username = console.readLine("Username: ");
+        final String password = new String(console.readPassword("Password: "));
+        System.out.println("Enter JDBC connection string, e.g.: jdbc:oracle:thin:@//<host>:<port>/<SID>");
+        final String jdbcConnString =  console.readLine("JDBC Connection String: ");
+        String sqlQuery =  console.readLine("SQL Query (blank defaults to: `SELECT sysdate FROM dual;`): ");
 
         Class.forName("oracle.jdbc.driver.OracleDriver");
 
-        if (args.length != 3) {
-            LOG.error("Invalid number of arguments: Must provide 3 arguments in the format: <schema_name> <schema_password> jdbc:oracle:thin:@//<host>:<port>/<SID>");
-            return;
-        }
-
-        Properties properties = new Properties();
-        properties.setProperty("user", args[0]);
-        properties.setProperty("password", args[1]);
-        properties.setProperty(OracleConnection.CONNECTION_PROPERTY_THIN_NET_CONNECT_TIMEOUT, "10000");
+        final Properties properties = new Properties();
+        properties.setProperty("user", username);
+        properties.setProperty("password", password);
+        // properties.setProperty(OracleConnection.CONNECTION_PROPERTY_THIN_NET_CONNECT_TIMEOUT, "10000");
+        // New, append to JDBC connection string ":oracle.net.CONNECT_TIMEOUT=2000;"
 
         try {
             LOG.info("****** Starting JDBC Connection test *******");
-            String sqlQuery = "select sysdate from dual";
 
-            Connection conn = DriverManager.getConnection(args[2], properties);
+            final Connection conn = DriverManager.getConnection(jdbcConnString, properties);
             conn.setAutoCommit(false);
-            Statement statement = conn.createStatement();
+            final Statement statement = conn.createStatement();
             LOG.info("Running SQL query: [{}]", sqlQuery);
-            ResultSet resultSet = statement.executeQuery(sqlQuery);
+            final ResultSet resultSet = statement.executeQuery(sqlQuery);
+            final ResultSetMetaData rsmd = resultSet.getMetaData();
+            final int columnsNumber = rsmd.getColumnCount();
+
+            if (resultSet.next()) {
+                for (int i = 1; i <= columnsNumber; i++) {
+                    System.out.print(rsmd.getColumnName(i) + " ");
+                    if (i > 1 && i < columnsNumber) System.out.print(",  ");
+                }
+                System.out.println("");
+                for (int i = 1; i <= columnsNumber; i++) {
+                    System.out.print(resultSet.getString(i) + " ");
+                    if (i > 1 && i < columnsNumber) System.out.print(",  ");
+                }
+                System.out.println("");
+            }
 
             while (resultSet.next()) {
-                LOG.info("Result of SQL query: [{}]", resultSet.getString(1));
+                for (int i = 1; i <= columnsNumber; i++) {
+                    System.out.print(resultSet.getString(i) + " ");
+                    if (i > 1 && i < columnsNumber) System.out.print(",  ");
+                    if (i == columnsNumber) System.out.println("");
+                }
             }
 
             statement.close();
