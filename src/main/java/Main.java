@@ -1,15 +1,9 @@
 // import oracle.jdbc.OracleConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.io.Console;
 import java.sql.*;
 import java.util.Properties;
 
-@SpringBootApplication
 public class Main {
-
-    final static Logger LOG = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) throws ClassNotFoundException {
 
@@ -29,12 +23,11 @@ public class Main {
         // New, append to JDBC connection string ":oracle.net.CONNECT_TIMEOUT=2000;"
 
         try {
-            LOG.info("****** Starting JDBC Connection test *******");
+            System.out.println("****** Starting JDBC Connection test *******");
 
             final Connection conn = DriverManager.getConnection(jdbcConnString, properties);
-            conn.setAutoCommit(false);
             final Statement statement = conn.createStatement();
-            LOG.info("Running SQL query: [{}]", sqlQuery);
+            System.out.println("Running SQL query: " + sqlQuery);
             final ResultSet resultSet = statement.executeQuery(sqlQuery);
             final ResultSetMetaData rsmd = resultSet.getMetaData();
             final int columnsNumber = rsmd.getColumnCount();
@@ -44,28 +37,28 @@ public class Main {
                     System.out.print(rsmd.getColumnName(i) + " ");
                     if (i > 1 && i < columnsNumber) System.out.print(",  ");
                 }
-                System.out.println("");
+                System.out.print("\n");
                 for (int i = 1; i <= columnsNumber; i++) {
                     System.out.print(resultSet.getString(i) + " ");
                     if (i > 1 && i < columnsNumber) System.out.print(",  ");
                 }
-                System.out.println("");
+                System.out.print("\n");
             }
 
             while (resultSet.next()) {
                 for (int i = 1; i <= columnsNumber; i++) {
                     System.out.print(resultSet.getString(i) + " ");
                     if (i > 1 && i < columnsNumber) System.out.print(",  ");
-                    if (i == columnsNumber) System.out.println("");
+                    if (i == columnsNumber) System.out.print("\n");
                 }
             }
 
             statement.close();
             conn.close();
 
-            LOG.info("JDBC connection test successful!");
+            System.out.println("JDBC connection test successful!");
         } catch (SQLException ex) {
-            LOG.error("Exception occurred connecting to database: {}", ex.getMessage());
+            System.out.println("Exception occurred connecting to database: " + ex.getMessage());
         }
     }
 }

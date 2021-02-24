@@ -13,8 +13,6 @@ mvn clean package
 Execute the JAR file:
 
 ```sh
-java -jar target/jdbc-tester-1.0.jar
-# or
 java -jar jdbc-tester-1.1-jar-with-dependencies.jar
 ```
 
